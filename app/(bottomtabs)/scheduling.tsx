@@ -96,9 +96,8 @@ const scheduling = () => {
 
                             return item.status === 'pending' || item.status === 'confirmed' ? (
                                 <View className='w-full flex-row bg-white justify-between p-4 h-32 mt-3'>
-                                    <View className='w-auto'>
+                                    <View className='w-auto flex-1'>
                                     <Text className='text-lg font-bold text-black'>{item.description}</Text>
-                                    <Text>{item.professional}</Text>
                                     </View>
 
                                     <View>
@@ -178,12 +177,6 @@ const scheduling = () => {
                 <View className='flex-col justify-around items-center'>
                     <Ionicons name="newspaper-outline" size={32} color="#676767" weight="regular" />
                     <Text>Agendamento</Text>
-                </View>
-            </Link>
-                <Link href="/(bottomtabs)/actions" >
-                <View className='flex-col justify-around items-center'>
-                    <Ionicons name="gift-outline" size={32} color="#676767" weight="regular" />
-                    <Text>Ações</Text>
                 </View>
             </Link>
             <Link href="/(bottomtabs)/notifications" >

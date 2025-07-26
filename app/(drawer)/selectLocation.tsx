@@ -28,7 +28,7 @@ const Agendar = () => {
 
     const loadImage = async () => {
       try {
-        const savedImagePath = await AsyncStorage.getItem('@user_profile_image');
+        const savedImagePath = selectedImage;
 
         if (savedImagePath) {
           const fileInfo = await FileSystem.getInfoAsync(savedImagePath);
@@ -63,8 +63,14 @@ const Agendar = () => {
             </View>
             
 
-            <Link href="/locationMaps" asChild>
-                <TouchableOpacity className='flex-row w-10/12 h-14 ml-8  rounded-md items-center'>
+            <Link  href={{
+                    pathname: "/locationMaps",
+                    params: {
+                        item: JSON.stringify(acao),
+                        imagemAleatoria: JSON.stringify(imagem)
+                    }
+                }}  asChild>
+              <TouchableOpacity className='flex-row w-10/12 h-14 ml-8  rounded-md items-center'>
                     <Ionicons name="map-outline" size={28} color="#2F80ED" weight="regular" />
                     <Text className="text-2xl ml-4"style={{color: '#2F80ED'}}>
                             Escolha no Mapa

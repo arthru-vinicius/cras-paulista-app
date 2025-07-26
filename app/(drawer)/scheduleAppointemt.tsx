@@ -15,11 +15,14 @@ const Agendar = () => {
         longitude: number;
         endereco: string;
     } | null>(null);
+    const [nearestCras, setNearestCras] = useState<any>(null);
 
     const { item, imagemAleatoria, latitude, longitude, endereco } = useLocalSearchParams();
 
     const acao = item ? JSON.parse(item as string) : null;
     const imagem = imagemAleatoria ? JSON.parse(imagemAleatoria as string) : null;
+
+
 
     useEffect(() => {
         console.log('Ação selecionada:', acao);
@@ -76,6 +79,7 @@ const Agendar = () => {
             categoria: acao,
             imagem: imagem,
             localizacao: locationData,
+            service: acao.name,
         };
 
         console.log('Dados para agendamento:', scheduleData);
@@ -85,18 +89,18 @@ const Agendar = () => {
                 console.log('Buscando CRAS mais próximo...');
                 
                 // Obter o token JWT do AsyncStorage
-                    const accessToken = AsyncStorage.getItem('accessToken');
+                const accesstoken = await AsyncStorage.getItem('accessToken');
                 
-                if (!accessToken) {
+                if (!accesstoken) {
                     throw new Error('Token de autenticação não encontrado. Faça login novamente.');
                 }
                 
-                const response = await fetch('http://cras-digital.fly.dev/api/v1/cras-locations', {
+                const response = await fetch('https://cras-digital.fly.dev/api/v1/cras-locations', {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
+                        'Authorization': `Bearer ${accesstoken}`,
                     },
                 });
                 
@@ -104,8 +108,6 @@ const Agendar = () => {
                 
                 if (!response.ok) {
                     if (response.status === 401) {
-                        // Token expirado ou inválido
-                        await AsyncStorage.removeItem('@auth_token');
                         throw new Error('Sessão expirada. Faça login novamente.');
                     }
                     const errorText = await response.text();
@@ -149,6 +151,9 @@ const Agendar = () => {
                 });
 
                 console.log('CRAS mais próximo:', nearestCras);
+                
+                // Salvar o CRAS mais próximo no estado
+                setNearestCras(nearestCras);
 
                 if (!nearestCras) {
                     throw new Error('Nenhum CRAS válido encontrado');
@@ -162,7 +167,7 @@ const Agendar = () => {
 
                 // Navegar para a próxima tela passando todos os dados
                 router.push({
-                    pathname: '/scheduleAppointment',
+                    pathname: '/confirmSchedule',
                     params: {
                         scheduleData: JSON.stringify(finalScheduleData),
                     },
@@ -195,6 +200,14 @@ const Agendar = () => {
         }
     };
 
+    useEffect(() => {
+        if (acao?.name) {
+            AsyncStorage.setItem('serviceName', acao.name)
+            .then(() => console.log('Service name salvo:', acao.name))
+            .catch((error) => console.error('Erro ao salvar o serviceName:', error));
+        }
+    }, [acao]);
+
     return (
         <View className="flex-1 w-full bg-fundo rounded-l-xl shadow-lg z-50">
             <View className='flex-row justify-start items-center p-4 bg-white mb-4'>
@@ -210,8 +223,14 @@ const Agendar = () => {
                 </View>
             )}
 
-            {/* Botão de endereço - mostra endereço se já selecionado ou permite selecionar */}
-            <Link href="/selectLocation" asChild>
+            <Link href={{
+                            pathname: "/selectLocation",
+                            params: {
+                                item: JSON.stringify(acao),
+                                imagemAleatoria: JSON.stringify(imagem)
+                            }
+                        }}  
+            asChild>
                 <TouchableOpacity
                     className={`flex-row items-center justify-start ml-8 mt-4 w-10/12 h-14 pl-8 rounded-md ${
                         locationData ? 'bg-green-100 border-2 border-green-300' : 'bg-gray-300'
@@ -234,6 +253,33 @@ const Agendar = () => {
                     </View>
                 </TouchableOpacity>
             </Link>
+
+            {nearestCras && (
+                <View className="flex-row items-center justify-start ml-8 mt-4 w-10/12 min-h-[56px] pl-8 rounded-md bg-blue-100 border-2 border-blue-300">
+                    <Ionicons 
+                        name="business" 
+                        size={28} 
+                        color="#1d4ed8" 
+                    />
+                    <View className="flex-1 ml-4 py-2">
+                        <Text className="font-semibold text-blue-700">
+                            CRAS Mais Próximo
+                        </Text>
+                        <Text className="text-sm text-blue-600 mt-1" numberOfLines={2}>
+                            {nearestCras.name}
+                        </Text>
+                        <Text className="text-xs text-blue-500 mt-1">
+                            📍 {nearestCras.distance} km de distância
+                        </Text>
+                        {nearestCras.phone && (
+                            <Text className="text-xs text-blue-500">
+                                📞 {nearestCras.phone}
+                            </Text>
+                        )}
+                    </View>
+                </View>
+            )}
+
 
             <TouchableOpacity 
                 className='w-10/12 h-14 ml-8 mt-12 bg-primary rounded-md justify-center items-center'

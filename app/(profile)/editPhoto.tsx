@@ -52,40 +52,62 @@ const EditPhoto = () => {
     }
   };
 
+  const takePhotoAsync = async () => {
+    // Solicitar permissão para usar a câmera
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (status !== 'granted') {
+      alert('Desculpe, precisamos de permissão para acessar a câmera!');
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    } else {
+      alert('Você cancelou a captura da foto.');
+    }
+  };
+
   const saveImage = async () => {
-  if (!selectedImage) {
-    alert('Nenhuma imagem selecionada!');
-    return;
-  }
-
-  try {
-    const fileName = selectedImage.split('/').pop();
-    const isFromAppStorage = selectedImage.startsWith(FileSystem.documentDirectory || '');
-
-    if (!FileSystem.documentDirectory) {
-        console.error('Armazenamento não disponível');
-        return;
+    if (!selectedImage) {
+      alert('Nenhuma imagem selecionada!');
+      return;
     }
 
-    const newPath = FileSystem.documentDirectory + fileName;
+    try {
+      const fileName = selectedImage.split('/').pop();
+      const isFromAppStorage = selectedImage.startsWith(FileSystem.documentDirectory || '');
 
-    if (!isFromAppStorage) {
-      await FileSystem.copyAsync({
-        from: selectedImage,
-        to: newPath,
-      });
+      if (!FileSystem.documentDirectory) {
+          console.error('Armazenamento não disponível');
+          return;
+      }
+
+      const newPath = FileSystem.documentDirectory + fileName;
+
+      if (!isFromAppStorage) {
+        await FileSystem.copyAsync({
+          from: selectedImage,
+          to: newPath,
+        });
+      }
+
+      await AsyncStorage.setItem('@user_profile_image', newPath);
+
+      alert('Imagem salva com sucesso!');
+      console.log('Imagem salva em:', newPath);
+    } catch (error) {
+      console.error('Erro ao salvar imagem:', error);
+      alert('Erro ao salvar imagem');
     }
-
-    await AsyncStorage.setItem('@user_profile_image', newPath);
-
-    alert('Imagem salva com sucesso!');
-    console.log('Imagem salva em:', newPath);
-  } catch (error) {
-    console.error('Erro ao salvar imagem:', error);
-    alert('Erro ao salvar imagem');
-  }
-};
-
+  };
 
   return (
     <View className="flex-1 items-center w-full bg-fundo rounded-l-xl shadow-lg z-50">
@@ -104,7 +126,6 @@ const EditPhoto = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Exibe a imagem salva ou a padrão */}
       <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} className='w-56 h-56'/>
 
       <TouchableOpacity
@@ -115,7 +136,10 @@ const EditPhoto = () => {
         <Text className="font-semibold ml-4">Escolha na galeria</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity className="flex-row items-center justify-start mt-4 w-72 h-14 bg-gray-300 pl-8 rounded-md">
+      <TouchableOpacity 
+        className="flex-row items-center justify-start mt-4 w-72 h-14 bg-gray-300 pl-8 rounded-md"
+        onPress={takePhotoAsync}
+      >
         <Ionicons name="camera-outline" size={28} color="#444444" />
         <Text className="font-semibold ml-4">Tirar foto</Text>
       </TouchableOpacity>

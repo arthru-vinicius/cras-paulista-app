@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { MapPressEvent, Marker } from 'react-native-maps';
@@ -10,6 +10,11 @@ export default function MapPicker() {
   const [address, setAddress] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [loadingLocation, setLoadingLocation] = useState(true);
+
+  // Receber os parâmetros passados
+  const { item, imagemAleatoria } = useLocalSearchParams();
+  const acao = item ? JSON.parse(item as string) : null;
+  const imagem = imagemAleatoria ? JSON.parse(imagemAleatoria as string) : null;
 
   // Get user location on load
   useEffect(() => {
@@ -91,11 +96,13 @@ export default function MapPicker() {
   const handleConfirm = () => {
     if (marker && address) {
       router.push({
-        pathname: '/scheduleAppointemt',
+        pathname: '/scheduleAppointemt', 
         params: {
           latitude: marker.latitude,
           longitude: marker.longitude,
           endereco: address,
+          item: JSON.stringify(acao),
+          imagemAleatoria: JSON.stringify(imagem)
         },
       });
     }

@@ -162,12 +162,6 @@ const Dashboard = () => {
                         <Text>Agendamento</Text>
                     </View>
                 </Link>
-                 <Link href="/(bottomtabs)/actions" >
-                    <View className='flex-col justify-around items-center'>
-                        <Ionicons name="gift-outline" size={32} color="#676767" weight="regular" />
-                        <Text>Ações</Text>
-                    </View>
-                </Link>
                 <Link href="/(bottomtabs)/notifications" >
                     <View className='flex-col justify-around items-center'>
                         <Ionicons name="notifications-outline" size={32} color="#676767" weight="regular" />

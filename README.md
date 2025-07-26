@@ -2,6 +2,15 @@
 
 A React Native mobile application for the CRAS (Centro de Referência de Assistência Social) Paulista, built with Expo and TypeScript. This app provides a digital platform for social assistance services, appointment scheduling, and service management.
 
+## 👨‍💻 Creators
+```
+Arthur Rodrigues
+Maria Morais
+Athos Lima
+Matheus Santos
+Rafael Luna
+```
+
 ## 🎯 Project Overview
 
 The CRAS Paulista mobile app is designed to streamline social assistance services by providing users with easy access to:
